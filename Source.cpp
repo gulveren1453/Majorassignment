@@ -1,53 +1,67 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
-
 using namespace std;
-
-// Structure to represent a meeting
-struct Meeting {
-    int start;
-    int end;
-};
-
-// Comparator function to sort meetings based on their end times
-bool compareMeetings(const Meeting& a, const Meeting& b) {
-    return a.end < b.end;
+//problem 11
+bool isValid(int A[], int N, int M, int mid) {
+    int students = 1;
+    int sum = 0;
+    for (int i = 0; i < N; i++) {
+        sum += A[i];
+        if (sum > mid) {
+            students++;
+            sum = A[i];
+        }
+        if (students > M) {
+            return false;
+        }
+    }
+    return true;
 }
 
-int maxMeetings(int start[], int end[], int N) {
-    vector<Meeting> meetings(N);
-
-    // Store meetings in a vector of Meeting structs
-    for (int i = 0; i < N; ++i) {
-        meetings[i].start = start[i];
-        meetings[i].end = end[i];
+int findPages(int N, int A[], int M) {
+    if (N < M) {
+        return -1;
     }
 
-    // Sort meetings based on their end times
-    sort(meetings.begin(), meetings.end(), compareMeetings);
+    int total_pages = 0;
+    int max_page = A[0];
 
-    // Initialize count and end time of last selected meeting
-    int count = 1;
-    int lastEnd = meetings[0].end;
-
-    // Iterate through sorted meetings and count the number of accommodated meetings
-    for (int i = 1; i < N; ++i) {
-        if (meetings[i].start >= lastEnd) {
-            count++;
-            lastEnd = meetings[i].end;
+    for (int i = 0; i < N; i++) {
+        total_pages += A[i];
+        if (A[i] > max_page) {
+            max_page = A[i];
         }
     }
 
-    return count;
+    int low = max_page;
+    int high = total_pages;
+    int result = INT_MAX; 
+
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (isValid(A, N, M, mid)) {
+            result = min(result, mid);
+            high = mid - 1;
+        }
+        else {
+            low = mid + 1;
+        }
+    }
+
+    return result == INT_MAX ? -1 : result; 
 }
 
 int main() {
-    int N = 6;
-    int start[] = { 1, 3, 0, 5, 8, 5 };
-    int end[] = { 2, 4, 6, 7, 9, 9 };
+    int N1 = 4;
+    int A1[] = { 12, 34, 67, 90 };
+    int M1 = 2;
+    cout << findPages(N1, A1, M1) << endl; 
 
-    cout << "Maximum number of meetings: " << maxMeetings(start, end, N) << endl;
+    int N2 = 3;
+    int A2[] = { 15, 17, 20 };
+    int M2 = 2;
+    cout << findPages(N2, A2, M2) << endl; 
 
     return 0;
 }
+
